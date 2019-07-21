@@ -1,0 +1,23 @@
+{
+  "name": "nepchat",
+  "version": "1.0.0",
+  "description": "2019 IWOP 방학 프로젝트",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kls6378/NepChat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kls6378/NepChat/issues"
+  },
+  "homepage": "https://github.com/kls6378/NepChat#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
