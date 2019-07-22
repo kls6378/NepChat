@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'pixel';
+    src: url(../font/INFO56_0.ttf) format('truetype');
+}
+
 body, html{
     margin: 0;
     padding: 0;
@@ -11,13 +16,14 @@ body, html{
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    z-index: 0;
 }
 
 .black{
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.55);
+    animation-duration: 10s;
+    animation-name: bgAnim;
 }
 
 #box{
@@ -33,27 +39,31 @@ body, html{
     border-bottom: 0;
     border-radius: 18px;
 
-    animation-duration: 5s;
+    animation-duration: 2s;
     animation-name: boxAnim;
 }
 
 #title{
     margin: 50px;
+    font-family: pixel, Arial, sans-serif;
     color: white;
-    font-size: 80px;
+    font-size: 90px;
     text-shadow: 7px 7px 5px black;
+    animation-duration: 4s;
+    animation-name: titleAnim;
 }
 
 .btn{
     display: block;
     width: 230px;
     height: 45px;
+    font-family: pixel, Arial, sans-serif;
     font-weight: bold;
     color: white;
     border: 0;
     border-radius: 10px;
     box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
-    font-size: 24px;
+    font-size: 34px;
     transition: 0.25s;
 }
 
@@ -66,7 +76,7 @@ body, html{
     margin: 0 auto;
     margin-top: 120px;
     background: #dd87ff;
-    animation-duration: 2s;
+    animation-duration: 4s;
     animation-name: playAnim;
 }
 
@@ -77,7 +87,7 @@ body, html{
 .community{
     margin: 30px auto;
     background: #914fff;
-    animation-duration: 2s;
+    animation-duration: 4s;
     animation-name: communityAnim;
 }
 
@@ -96,23 +106,68 @@ footer{
     color: white;
 }
 
+@keyframes bgAnim{
+    from{
+        background: black;
+    }
+
+    to{
+        background: rgba(0, 0, 0, 0.55);    
+    }
+}
+
 @keyframes boxAnim{
     from{
         opacity: 0;
         padding: 80px;
+        border-left-width: 0;
+        border-top-width: 0;
+        border-right-width: 0;
     }
 
-    50%{
-        padding: 0;
+    33%{
+        border-left-width: 10px;
+        border-top-width: 0;
+        border-right-width: 0;
+    }
+
+    66%{
+        border-top-width: 10px;
+        border-right-width: 0;
+    }
+
+    99%{
+        border-right-width: 10px;
     }
 
     to{
         opacity: 1;
+        padding: 0;
+    }
+}
+
+@keyframes titleAnim{
+    from{
+        opacity: 0;
+    }
+
+    50%{
+        opacity: 0;
+        font-size: 110px;
+    }
+
+    to{
+        font-size: 90px;
     }
 }
 
 @keyframes playAnim{
     from{
+        opacity: 0;
+    }
+
+    50%{
+        opacity: 0;
         margin-top: 200px;
     }
 
@@ -123,7 +178,12 @@ footer{
 
 @keyframes communityAnim{
     from{
-        margin-top: 110px;
+        opacity: 0;
+    }
+
+    50%{
+        opacity: 0;
+        margin-top: 55px;
     }
 
     to{

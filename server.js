@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+const port = 8888
+
 app.use(express.static('public'))
 
 app.get('/',(req,res)=>{
@@ -15,6 +17,6 @@ app.get('/community',(req,res)=>{
     res.sendFile(__dirname+'/public/html/community.html')
 })
 
-app.listen(8888,()=>{
-    console.log('Server is running...')
+app.listen(port,()=>{
+    console.log('\u001b[1m', '\u001b[32m', 'Server is running on ' + port, '\u001b[0m')
 })
