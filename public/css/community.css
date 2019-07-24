@@ -1,0 +1,13 @@
+body, html{
+    margin: 0;
+    padding: 0;
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+.board{
+    border-collapse: collapse;
+}
+
+.tableH{
+    border-bottom: 1px solid black;
+}

@@ -1,0 +1,8 @@
+CREATE DATABASE NepChat;
+
+CREATE TABLE board(
+    _id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(32) NOT NULL,
+    password VARCHAR(32) NOT NULL,
+    title 
+);
