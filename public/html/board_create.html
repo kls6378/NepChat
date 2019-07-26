@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,24 +9,26 @@
     <script src="https://kit.fontawesome.com/d40abb87d0.js"></script>
     <title>Writing</title>
 </head>
+
 <body>
     <h1><i class="fas fa-pencil-alt"></i>글작성</h1>
-    <form action="/board_create_process" method="POST">
+    <form action="/board/create_process" method="POST">
         <div>
-            <span>아이디</span> <input type="text" name="id" id="id">
+            <span>아이디</span> <input type="text" name="name" id="name" maxlength="32">
         </div>
         <div>
-            <span>비밀번호</span> <input type="password" name="password" id="password">
+            <span>비밀번호</span> <input type="password" name="password" id="password" maxlength="16">
         </div>
         <div>
-            <span>제목</span> <input type="text" name="title" id="title">
+            <span>제목</span> <input type="text" name="title" id="title" maxlength="255">
         </div>
         <div>
-            <span>내용</span> <textarea name="content" id="content" cols="30" rows="10"></textarea>
+            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" maxlength="65535"></textarea>
         </div>
         <div>
             <input type="submit" value="게시">
         </div>
     </form>
 </body>
+
 </html>
