@@ -53,6 +53,7 @@ app.get('/board',(req,res)=>{
         </head>
         
         <body>
+        <a href="/"><button>메인으로</button></a>        
         <h1>자유 게시판</h1>
         <a href="/board/create"><button>글작성</button></a>
         <table class="board">
@@ -156,21 +157,24 @@ app.get('/board/:boardId/update',(req,res)=>{
                 *글을 작성하실때 입력하신 아이디와 비밀번호를 입력해주세요*
             </div>
             <div>
-                <span>아이디</span> <input type="text" name="name" id="name" maxlength="32">
+                <span>아이디</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
             </div>
             <div>
-                <span>비밀번호</span> <input type="password" name="password" id="password" maxlength="16">
+                <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
             </div>
             <div>
-                <span>제목</span> <input type="text" name="title" id="title" maxlength="255" value="${sanitizeHtml(htmlTitle)}">
+                <span>제목</span> <input type="text" name="title" id="title" minlength="4" maxlength="255" value="${sanitizeHtml(htmlTitle)}">
             </div>
             <div>
-                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" maxlength="65535">${sanitizeHtml(htmlDescription)}</textarea>
+                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535">${sanitizeHtml(htmlDescription)}</textarea>
             </div>
             <div>
-                <input type="submit" value="게시">
+                <input type="submit" value="수정">    
             </div>
         </form>
+            <div>
+                <a href="/board/${htmlId}"><button>취소</button></a>
+            </div>
         </body>
         </html>
         `
@@ -179,33 +183,99 @@ app.get('/board/:boardId/update',(req,res)=>{
 })
 
 app.get('/board/:boardId/delete',(req,res)=>{
-    
-})
+    connection.query(`SELECT * FROM board WHERE _id = ?`,[req.params.boardId],(err,result)=>{
+        let htmlId
+        let html
 
-app.post('/board/create_process',(req,res)=>{
-    connection.query(`INSERT INTO board (name, password, title, description, date) VALUES (?, MD5(?), ?, ?, NOW());`, [req.body.name, req.body.password, req.body.title, req.body.description],(err,result)=>{
         if(err){
             throw err
         }
-        res.redirect(`/board/${result.insertId}`)
+
+        htmlId = result[0]._id
+        html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+            <title>Delete</title>
+        </head>
+        <body>
+        <form action="/board/${htmlId}/delete_process" method="POST">
+            <input type="hidden" name="id" value="${htmlId}">
+            <div>
+                *글을 작성하실때 입력하신 아이디와 비밀번호를 입력해주세요*
+            </div>
+            <div>
+                <span>아이디</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+            </div>
+            <div>
+                <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
+            </div>
+            <div>
+                <input type="submit" value="삭제">    
+            </div>
+        </form>
+            <div>
+                <a href="/board/${htmlId}"><button>취소</button></a>
+            </div>
+        </body>
+        </html>
+        `
+        res.send(html)
     })
+})
+
+app.post('/board/create_process',(req,res)=>{
+    if(req.body.name === '' || req.body.password === '' || req.body.title === '' || req.body.description === ''){
+        let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/create"</script>`
+        res.send(error)
+    }else{
+        connection.query(`INSERT INTO board (name, password, title, description, date) VALUES (?, MD5(?), ?, ?, NOW());`, [req.body.name, req.body.password, req.body.title, req.body.description],(err,result)=>{
+            if(err){
+                throw err
+            }
+            res.redirect(`/board/${result.insertId}`)
+        })
+    }
 })
 
 app.post('/board/:boardId/update_process',(req,res)=>{
     connection.query(`SELECT * FROM board WHERE _id = ?`,[req.body.id],(err,selectResult)=>{
-        if(req.body.name!=selectResult[0].name || MD5(req.body.password)!=selectResult[0].password){
-            res.send('ERROR')
-            if(alert('asdf')){
-                res.redirect(`/board/${selectResult[0]._id}/update`)
-            }
+        if(req.body.name === '' || req.body.password === '' || req.body.title === '' || req.body.description === ''){
+            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/update"</script>`
+            res.send(error)
+        }else if(req.body.name!=selectResult[0].name || MD5(req.body.password)!=selectResult[0].password){
+            let error = `<script>if(!alert("아이디 또는 비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/update"</script>`
+            res.send(error)
+        }else{
+            connection.query(`UPDATE board SET title=?, description=?, date=NOW() WHERE _id=?`,[req.body.title, req.body.description, req.params.boardId],(err,result)=>{
+                if(err){
+                    throw err
+                }
+                res.redirect(`/board/${selectResult[0]._id}`)
+            })
         }
-        connection.query(`UPDATE board SET title=?, description=?, date=NOW() WHERE _id=?`,[req.body.title, req.body.description, req.params.boardId],(err,result)=>{
-            if(err){
-                throw err
-            }
-            
-            res.redirect(`/board/${selectResult[0]._id}`)
-        })
+    })
+})
+
+app.post('/board/:boardId/delete_process',(req,res)=>{
+    connection.query(`SELECT * FROM board WHERE _id = ?`,[req.body.id],(err,selectResult)=>{
+        if(req.body.name === '' || req.body.password === ''){
+            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/delete"</script>`
+            res.send(error)
+        }else if(req.body.name!=selectResult[0].name || MD5(req.body.password)!=selectResult[0].password){
+            let error = `<script>if(!alert("아이디 또는 비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/delete"</script>`
+            res.send(error)
+        }else{
+            connection.query(`DELETE FROM board WHERE _id = ?`,[selectResult[0]._id],(err,result)=>{
+                if(err){
+                    throw err
+                }
+                res.redirect('/board')
+            })
+        }
     })
 })
 
