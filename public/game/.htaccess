@@ -1,22 +1,3 @@
-AddType application/x-javascript .jsgz
-AddType application/wasm .wasmgz
-AddType text/plain .symbolsgz
-AddType application/octet-stream .memgz
-# NOTE: .data is NOT compressed
-AddType application/octet-stream .data
-
-RewriteEngine on
-# If client accepts compressed files
-RewriteCond %{HTTP:Accept-Encoding} gzip
-# and if compressed file exists
-RewriteCond %{REQUEST_FILENAME}gz -f
-# send .ext.gz instead of .ext
-RewriteRule ^(.+)\.(js|wasm|symbols|mem)$ $1.$2gz
-
-AddEncoding gzip .jsgz
-AddEncoding gzip .wasmgz
-AddEncoding gzip .symbolsgz
-AddEncoding gzip .memgz
-
-AddEncoding gzip .datagz
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:0f9e1e9b38a2379dd276ef55aced0cf55124d977d3d4dd100092a2d129cadbe6
+size 609
