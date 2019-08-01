@@ -31,11 +31,17 @@ app.get('/board',(req,res)=>{
         }
 
         for(let i = result.length-1; i >= 0; i--){
+            if(sanitizeHtml(result[i].title) == ''){
+                result[i].title += '걸러진 제목'
+            }
+            if(sanitizeHtml(result[i].name) == ''){
+                result[i].name += '걸러진 이름'
+            }
             list += `
             <tr>
                 <td id="title"><a href="/board/${result[i]._id}">${sanitizeHtml(result[i].title)}</a></td>
                 <td id="name">${sanitizeHtml(result[i].name)}</td>
-                <td id="date">${sanitizeHtml(result[i].date)}</td>
+                <td id="date">${result[i].date}</td>
             </tr>
             `
         }
@@ -53,7 +59,7 @@ app.get('/board',(req,res)=>{
         </head>
         
         <body>
-        <a href="/"><button>메인으로</button></a>        
+        <a href="/" id="goMain"><button>메인으로</button></a>        
         <h1>자유 게시판</h1>
         <a href="/board/create"><button>글작성</button></a>
         <table class="board">
@@ -69,6 +75,13 @@ app.get('/board',(req,res)=>{
             </tbody>
         </table>
         </body>
+
+        <script>
+        if ( self !== top ) {
+            const goMain = document.getElementById('goMain')
+            goMain.style.display = 'none'
+          }          
+        </script>
         
         </html>
         `
@@ -93,6 +106,16 @@ app.get('/board/:boardId',(req,res)=>{
             throw err
         }
 
+        if(sanitizeHtml(result[0].title) == ''){
+            result[0].title += '걸러진 제목'
+        }
+        if(sanitizeHtml(result[0].name) == ''){
+            result[0].name += '걸러진 이름'
+        }
+        if(sanitizeHtml(result[0].description) == ''){
+            result[0].description += '걸러진 본문'
+        }
+
         htmlId = result[0]._id
         htmlTitle = result[0].title
         htmlName = result[0].name
@@ -114,7 +137,7 @@ app.get('/board/:boardId',(req,res)=>{
             <a href="/board"><button>목록</button></a>
             <h1>${sanitizeHtml(htmlTitle)}</h1>
             <div>${sanitizeHtml(htmlName)}</div>
-            <div>${sanitizeHtml(htmlDate)}</div>
+            <div>${htmlDate}</div>
             <a href="/board/${htmlId}/update"><button>수정</button></a>
             <a href="/board/${htmlId}/delete"><button>삭제</button></a>
             <div>${sanitizeHtml(htmlDescription)}</div>
