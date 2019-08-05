@@ -10,3 +10,12 @@ CREATE TABLE board(
     description TEXT NOT NULL,
     date DATE NOT NULL
 );
+
+CREATE TABLE comment(
+    _id INT AUTO_INCREMENT PRIMARY KEY,
+    boardId INT NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    password VARCHAR(32) NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL
+);

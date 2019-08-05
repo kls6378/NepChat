@@ -4,7 +4,7 @@ function backgrounFunc() {
     changeBgImage(0)
     setTimeout(() => {
         fadeIn_Out(55)
-    }, 10000);
+    }, 10000)
 }
 
 function changeBgImage() {
@@ -30,11 +30,11 @@ function fadeIn_Out(opacity, isTurning = true) {
             if (opacity == 56) {
                 setTimeout(() => {
                     fadeIn_Out(55, true)
-                }, 8000);
+                }, 8000)
             }
         }
         black.style.backgroundColor = `rgba(0, 0, 0, ${opacity/100})`
-    }, 25);
+    }, 25)
 }
 
 function enter(path) {

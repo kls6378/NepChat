@@ -25,12 +25,12 @@ app.get('/game', (req, res) => {
 
 app.get('/board', (req, res) => {
     connection.query(`SELECT * FROM board`, (err, result) => {
-        let html
-        let list = ''
-
         if (err) {
             throw err
         }
+
+        let html
+        let list = ''
 
         for (let i = result.length - 1; i >= 0; i--) {
             if (sanitizeHtml(result[i].title) == '') {
@@ -96,7 +96,7 @@ app.get('/board/create', (req, res) => {
 })
 
 app.get('/board/create_process', (req, res) => {
-    res.status(404).send('잘못된 접근입니다.');
+    res.status(404).send('잘못된 접근입니다.')
 })
 
 app.get('/board/:boardId', (req, res) => {
@@ -111,45 +111,68 @@ app.get('/board/:boardId', (req, res) => {
             if (req.params.boardId == result[i]._id) {
                 isExist = true
                 connection.query(`SELECT * FROM board WHERE _id = ?`, [req.params.boardId], (err, selectResult) => {
-                    let htmlId
-                    let htmlTitle
-                    let htmlName
-                    let htmlDate
-                    let htmlDescription
-                    let html
+                    connection.query(`SELECT * FROM comment WHERE boardId = ?`, [req.params.boardId], (err, commentResult) => {
+                        if (err) {
+                            throw err
+                        }
 
-                    if (err) {
-                        throw err
-                    }
+                        let commentCount
 
-                    if (sanitizeHtml(selectResult[0].title) == '') {
-                        selectResult[0].title += '걸러진 제목'
-                    }
-                    if (sanitizeHtml(selectResult[0].name) == '') {
-                        selectResult[0].name += '걸러진 이름'
-                    }
-                    if (sanitizeHtml(selectResult[0].description) == '') {
-                        selectResult[0].description += '걸러진 본문'
-                    }
+                        if (!commentResult.length) {
+                            commentCount = 0
+                        } else {
+                            commentCount = commentResult.length
+                        }
 
-                    htmlId = selectResult[0]._id
-                    htmlTitle = selectResult[0].title
-                    htmlName = selectResult[0].name
-                    htmlDate = selectResult[0].date
-                    htmlDescription = selectResult[0].description
-                    html = `
-                    <!DOCTYPE html>
-                    <html>
-                    
-                    <head>
+                        let htmlId
+                        let htmlTitle
+                        let htmlName
+                        let htmlDate
+                        let htmlDescription
+                        let comment = ''
+                        let html
+
+                        if (sanitizeHtml(selectResult[0].title) == '') {
+                            selectResult[0].title += '걸러진 제목'
+                        }
+                        if (sanitizeHtml(selectResult[0].name) == '') {
+                            selectResult[0].name += '걸러진 이름'
+                        }
+                        if (sanitizeHtml(selectResult[0].description) == '') {
+                            selectResult[0].description += '걸러진 본문'
+                        }
+
+                        htmlId = selectResult[0]._id
+                        htmlTitle = selectResult[0].title
+                        htmlName = selectResult[0].name
+                        htmlDate = selectResult[0].date
+                        htmlDescription = selectResult[0].description
+                        for (let i = 0; i < commentCount; i++) {
+                            comment += `
+                            <ul>
+                                <li>${sanitizeHtml(commentResult[i].name)}</li>
+                                <li>${commentResult[i].date}</li>
+                                <li>${sanitizeHtml(commentResult[i].description)}</li>
+                                <li>
+                                    <a href="/board/${htmlId}/comment/${commentResult[i]._id}/update"><button>수정</button></a>
+                                    <a href="/board/${htmlId}/comment/${commentResult[i]._id}/delete"><button>삭제</button></a>
+                                </li>
+                            </ul>
+                            `
+                        }
+                        html = `
+                        <!DOCTYPE html>
+                        <html>
+                        
+                        <head>
                         <meta charset="UTF-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <link rel="stylesheet" href="../css/board_create.css">
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <title>${sanitizeHtml(htmlTitle)}</title>
-                    </head>
-                    
-                    <body>
+                        </head>
+                        
+                        <body>
                         <a href="/board"><button>목록</button></a>
                         <h1>${sanitizeHtml(htmlTitle)}</h1>
                         <div>${sanitizeHtml(htmlName)}</div>
@@ -157,11 +180,31 @@ app.get('/board/:boardId', (req, res) => {
                         <a href="/board/${htmlId}/update"><button>수정</button></a>
                         <a href="/board/${htmlId}/delete"><button>삭제</button></a>
                         <div>${sanitizeHtml(htmlDescription)}</div>
-                    </body>
-                    
-                    </html>
-                    `
-                    res.send(html)
+                        <div>댓글 ${commentCount}</div>
+                        <div>${comment}</div>
+                        <div>
+                        <div>*비밀번호는 나중에 댓글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
+                        <form action="/board/${htmlId}/comment/create_process" method="POST">
+                            <div>
+                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+                            </div>
+                            <div>
+                                <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
+                            </div>
+                            <div>
+                                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535"></textarea>
+                            </div>
+                            <div>
+                                <input type="submit" value="게시">
+                            </div>
+                        </form>
+                        </div>
+                        </body>
+                        
+                        </html>
+                        `
+                        res.send(html)
+                    })
                 })
                 break
             }
@@ -187,14 +230,14 @@ app.get('/board/:boardId/update', (req, res) => {
             if (req.params.boardId == result[i]._id) {
                 isExist = true
                 connection.query(`SELECT * FROM board WHERE _id = ?`, [req.params.boardId], (err, result) => {
+                    if (err) {
+                        throw err
+                    }
+
                     let htmlId
                     let htmlTitle
                     let htmlDescription
                     let html
-
-                    if (err) {
-                        throw err
-                    }
 
                     htmlId = result[0]._id
                     htmlTitle = result[0].title
@@ -212,10 +255,7 @@ app.get('/board/:boardId/update', (req, res) => {
                     <form action="/board/${htmlId}/update_process" method="POST">
                         <input type="hidden" name="id" value="${htmlId}">
                         <div>
-                            *글을 작성하실때 입력하신 아이디와 비밀번호를 입력해주세요*
-                        </div>
-                        <div>
-                            <span>아이디</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+                            *글을 작성하실때 입력하신 비밀번호를 입력해주세요*
                         </div>
                         <div>
                             <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
@@ -246,11 +286,10 @@ app.get('/board/:boardId/update', (req, res) => {
             res.status(404).send('없는 페이지 입니다.')
         }
     })
-
 })
 
 app.get('/board/:boardId/update_process', (req, res) => {
-    res.status(404).send('잘못된 접근입니다.');
+    res.status(404).send('잘못된 접근입니다.')
 })
 
 app.get('/board/:boardId/delete', (req, res) => {
@@ -265,13 +304,13 @@ app.get('/board/:boardId/delete', (req, res) => {
             if (req.params.boardId == result[i]._id) {
                 isExist = true
                 connection.query(`SELECT * FROM board WHERE _id = ?`, [req.params.boardId], (err, result) => {
-                    let htmlId
-                    let html
-            
                     if (err) {
                         throw err
                     }
-            
+
+                    let htmlId
+                    let html
+
                     htmlId = result[0]._id
                     html = `
                     <!DOCTYPE html>
@@ -286,10 +325,7 @@ app.get('/board/:boardId/delete', (req, res) => {
                     <form action="/board/${htmlId}/delete_process" method="POST">
                         <input type="hidden" name="id" value="${htmlId}">
                         <div>
-                            *글을 작성하실때 입력하신 아이디와 비밀번호를 입력해주세요*
-                        </div>
-                        <div>
-                            <span>아이디</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+                            *글을 작성하실때 입력하신 비밀번호를 입력해주세요*
                         </div>
                         <div>
                             <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
@@ -317,7 +353,148 @@ app.get('/board/:boardId/delete', (req, res) => {
 })
 
 app.get('/board/:boardId/delete_process', (req, res) => {
-    res.status(404).send('잘못된 접근입니다.');
+    res.status(404).send('잘못된 접근입니다.')
+})
+
+app.get('/board/:boardId/comment/create_process', (req, res) => {
+    res.status(404).send('잘못된 접근입니다.')
+})
+
+app.get('/board/:boardId/comment/:commentId/update', (req, res) => {
+    connection.query(`SELECT * FROM comment`, (err, result) => {
+        if (err) {
+            throw err
+        }
+
+        let isExist = false
+
+        for (let i = 0; i < result.length; i++) {
+            if (req.params.commentId == result[i]._id) {
+                isExist = true
+                connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.params.commentId], (err, result) => {
+                    if (err) {
+                        throw err
+                    }
+
+                    let boardId
+                    let commentId
+                    let commentDescription
+                    let html
+
+                    boardId = result[0].boardId
+                    commentId = result[0]._id
+                    commentDescription = result[0].description
+                    html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+                        <title>Update</title>
+                    </head>
+                    <body>
+                    <form action="/board/${boardId}/comment/${commentId}/update_process" method="POST">
+                        <input type="hidden" name="id" value="${commentId}">
+                        <div>
+                            *글을 작성하실때 입력하신 비밀번호를 입력해주세요*
+                        </div>
+                        <div>
+                            <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
+                        </div>
+                        <div>
+                            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535">${sanitizeHtml(commentDescription)}</textarea>
+                        </div>
+                        <div>
+                            <input type="submit" value="수정">    
+                        </div>
+                    </form>
+                        <div>
+                            <a href="/board/${boardId}"><button>취소</button></a>
+                        </div>
+                    </body>
+                    </html>
+                    `
+                    res.send(html)
+                })
+                break
+            }
+        }
+
+        if (isExist === false) {
+            res.status(404).send('없는 페이지 입니다.')
+        }
+    })
+})
+
+app.get('/board/:boardId/comment/:commentId/delete', (req, res) => {
+    connection.query(`SELECT * FROM comment`, (err, result) => {
+        if (err) {
+            throw err
+        }
+
+        let isExist = false
+
+        for (let i = 0; i < result.length; i++) {
+            if (req.params.commentId == result[i]._id) {
+                isExist = true
+                connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.params.commentId], (err, result) => {
+                    if (err) {
+                        throw err
+                    }
+
+                    let boardId
+                    let commentId
+                    let html
+
+                    commentId = result[0]._id
+                    boardId = result[0].boardId
+                    html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+                        <title>Delete</title>
+                    </head>
+                    <body>
+                    <form action="/board/${boardId}/comment/${commentId}/delete_process" method="POST">
+                        <input type="hidden" name="id" value="${commentId}">
+                        <div>
+                            *글을 작성하실때 입력하신 비밀번호를 입력해주세요*
+                        </div>
+                        <div>
+                            <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
+                        </div>
+                        <div>
+                            <input type="submit" value="삭제">    
+                        </div>
+                    </form>
+                        <div>
+                            <a href="/board/${boardId}"><button>취소</button></a>
+                        </div>
+                    </body>
+                    </html>
+                    `
+                    res.send(html)
+                })
+                break
+            }
+        }
+
+        if (isExist === false) {
+            res.status(404).send('없는 페이지 입니다.')
+        }
+    })
+})
+
+app.get('/board/:boardId/comment/:commentId/update_process', (req, res) => {
+    res.status(404).send('잘못된 접근입니다.')
+})
+
+app.get('/board/:boardId/comment/:commentId/delete_process', (req, res) => {
+    res.status(404).send('잘못된 접근입니다.')
 })
 
 app.post('/board/create_process', (req, res) => {
@@ -325,7 +502,7 @@ app.post('/board/create_process', (req, res) => {
         let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/create"</script>`
         res.send(error)
     } else {
-        connection.query(`INSERT INTO board (name, password, title, description, date) VALUES (?, MD5(?), ?, ?, NOW());`, [req.body.name, req.body.password, req.body.title, req.body.description], (err, result) => {
+        connection.query(`INSERT INTO board (name, password, title, description, date) VALUES (?, MD5(?), ?, ?, NOW())`, [req.body.name, req.body.password, req.body.title, req.body.description], (err, result) => {
             if (err) {
                 throw err
             }
@@ -336,11 +513,11 @@ app.post('/board/create_process', (req, res) => {
 
 app.post('/board/:boardId/update_process', (req, res) => {
     connection.query(`SELECT * FROM board WHERE _id = ?`, [req.body.id], (err, selectResult) => {
-        if (req.body.name === '' || req.body.password === '' || req.body.title === '' || req.body.description === '') {
+        if (req.body.password === '' || req.body.title === '' || req.body.description === '') {
             let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/update"</script>`
             res.send(error)
-        } else if (req.body.name != selectResult[0].name || MD5(req.body.password) != selectResult[0].password) {
-            let error = `<script>if(!alert("아이디 또는 비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/update"</script>`
+        } else if (MD5(req.body.password) != selectResult[0].password) {
+            let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/update"</script>`
             res.send(error)
         } else {
             connection.query(`UPDATE board SET title=?, description=?, date=NOW() WHERE _id=?`, [req.body.title, req.body.description, req.params.boardId], (err, result) => {
@@ -355,11 +532,11 @@ app.post('/board/:boardId/update_process', (req, res) => {
 
 app.post('/board/:boardId/delete_process', (req, res) => {
     connection.query(`SELECT * FROM board WHERE _id = ?`, [req.body.id], (err, selectResult) => {
-        if (req.body.name === '' || req.body.password === '') {
+        if (req.body.password === '') {
             let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/delete"</script>`
             res.send(error)
-        } else if (req.body.name != selectResult[0].name || MD5(req.body.password) != selectResult[0].password) {
-            let error = `<script>if(!alert("아이디 또는 비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/delete"</script>`
+        } else if (MD5(req.body.password) != selectResult[0].password) {
+            let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/delete"</script>`
             res.send(error)
         } else {
             connection.query(`DELETE FROM board WHERE _id = ?`, [selectResult[0]._id], (err, result) => {
@@ -367,6 +544,58 @@ app.post('/board/:boardId/delete_process', (req, res) => {
                     throw err
                 }
                 res.redirect('/board')
+            })
+        }
+    })
+})
+
+app.post('/board/:boardId/comment/create_process', (req, res) => {
+    if (req.body.name === '' || req.body.password === '' || req.body.description === '') {
+        let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${req.params.boardId}"</script>`
+        res.send(error)
+    } else {
+        connection.query(`INSERT INTO comment (boardId, name, password, description, date) VALUES (?, ?, MD5(?), ?, NOW())`, [req.params.boardId, req.body.name, req.body.password, req.body.description], (err, result) => {
+            if (err) {
+                throw err
+            }
+            res.redirect(`/board/${req.params.boardId}`)
+        })
+    }
+})
+
+app.post('/board/:boardId/comment/:commentId/update_process', (req, res) => {
+    connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.body.id], (err, selectResult) => {
+        if (req.body.password === '' || req.body.description === '') {
+            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/update"</script>`
+            res.send(error)
+        } else if (MD5(req.body.password) != selectResult[0].password) {
+            let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/update"</script>`
+            res.send(error)
+        } else {
+            connection.query(`UPDATE comment SET description=?, date=NOW() WHERE _id=?`, [selectResult[0].description, selectResult[0]._id], (err, result) => {
+                if (err) {
+                    throw err
+                }
+                res.redirect(`/board/${selectResult[0].boardId}`)
+            })
+        }
+    })
+})
+
+app.post('/board/:boardId/comment/:commentId/delete_process', (req, res) => {
+    connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.body.id], (err, selectResult) => {
+        if (req.body.password === '') {
+            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/delete"</script>`
+            res.send(error)
+        } else if (MD5(req.body.password) != selectResult[0].password) {
+            let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/delete"</script>`
+            res.send(error)
+        } else {
+            connection.query(`DELETE FROM comment WHERE _id = ?`, [selectResult[0]._id], (err, result) => {
+                if (err) {
+                    throw err
+                }
+                res.redirect(`/board/${selectResult[0].boardId}`)
             })
         }
     })

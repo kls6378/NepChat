@@ -11,10 +11,10 @@
 
 <body>
     <h1>글작성</h1>
-    <div>*아이디와 비밀번호는 나중에 글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
+    <div>*비밀번호는 나중에 글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
     <form action="/board/create_process" method="POST">
         <div>
-            <span>아이디</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+            <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
         </div>
         <div>
             <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
