@@ -4,14 +4,81 @@ body, html{
     font-family: 'Nanum Gothic', sans-serif;
 }
 
-.board{
-    border-collapse: collapse;
+.navUl{
+    width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #553c8b;
 }
 
-.tableH{
-    border-bottom: 1px solid black;
+.navUl.fixed{
+    position: fixed;
+    top: 0;
 }
 
-#name, #date{
+.navLi{
+    float: left;
+}
+
+.navLi.create{
+    float: right;
+}
+
+.navLi a{
+    display: block;
+    color: white;
     text-align: center;
+    font-size: 20px;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+.navLi.hover a:hover{
+    background-color: #411a94;
+}
+
+.board{
+    margin: 50px auto;
+    background-color: #fafafa;
+    border: 0.1px solid black;
+    width: 560px;
+    max-height: 500px;
+    box-shadow: 2.5px 2.5px 2px 2px gray;
+}
+
+.board a{
+    text-decoration: none;
+    color: black;
+}
+
+.content{
+    margin: 40px;
+}
+
+.title{
+    font-size: 28px;
+    word-break: keep-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name, .date{
+    margin: 10px 0;
+    margin-bottom: 30px;
+    display: inline-block;
+    color: gray;
+    font-size: 14px;
+}
+
+.description{
+    max-height: 320px;
+    line-height: 2em;
+    word-wrap: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
 }

@@ -39,12 +39,24 @@ app.get('/board', (req, res) => {
             if (sanitizeHtml(result[i].name) == '') {
                 result[i].name += '걸러진 이름'
             }
+            if (sanitizeHtml(result[i].description) == ''){
+                result[i].name += '걸러진 본문'
+            }
+            
+            let description = result[i].description
+            description = description.replace(/(?:\r\n|\r|\n)/g, '<br>')
+            description = description.replace(/\s/g, '&nbsp;')
             list += `
-            <tr>
-                <td id="title"><a href="/board/${result[i]._id}">${sanitizeHtml(result[i].title.replace(/\s/g, '&nbsp;'))}</a></td>
-                <td id="name">${sanitizeHtml(result[i].name)}</td>
-                <td id="date">${result[i].date}</td>
-            </tr>
+            <div class="board">
+                <a href="/board/${result[i]._id}">
+                    <div class="content">
+                        <div class="title">${sanitizeHtml(result[i].title.replace(/\s/g, '&nbsp;'))}</div>
+                        <div class="name">${sanitizeHtml(result[i].name)}&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+                        <div class="date">${result[i].date}</div>
+                        <div class="description">${description}</div>
+                    </div>
+                </a>    
+            </div>
             `
         }
 
@@ -57,34 +69,30 @@ app.get('/board', (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" href="./css/board.css">
             <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
             <title>Board</title>
         </head>
         
         <body>
-        <a href="/" id="goMain"><button>메인으로</button></a>        
-        <h1>자유 게시판</h1>
-        <a href="/board/create"><button>글작성</button></a>
-        <table class="board">
-            <thead>
-                <tr>    
-                    <th class="tableH title">제목</th>
-                    <th class="tableH name">작성자</th>
-                    <th class="tableH date">날짜</th>
-                </tr>
-            </thead>
-            <tbody id="content">
-                ${list}
-            </tbody>
-        </table>
-        </body>
-
+        <ul class="navUl">
+            <li class="navLi title"><a href="/board"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;자유 게시판</a></li>        
+            <li class="navLi main hover"><a href="/"><i class="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;메인</a></li>        
+            <li class="navLi main hover"><a href="/game"><i class="fa fa-gamepad" aria-hidden="true"></i>&nbsp;&nbsp;게임하기</a></li>        
+            <li class="navLi create hover"><a href="/board/create"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;글작성</a></li>
+        </ul>
+        ${list}
         <script>
-        if ( self !== top ) {
-            const goMain = document.getElementById('goMain')
-            goMain.style.display = 'none'
-          }          
+            window.addEventListener('scroll', function() {
+                let el = document.querySelector('.navUl')
+                
+                if(window.scrollY >= 60){
+                    el.classList.add('fixed')
+                }else {
+                    el.classList.remove('fixed')
+                }
+            })
         </script>
-        
+        </body>
         </html>
         `
         res.send(html)
@@ -197,7 +205,7 @@ app.get('/board/:boardId', (req, res) => {
                         <div>*비밀번호는 나중에 댓글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
                         <form action="/board/${htmlId}/comment/create_process" method="POST">
                             <div>
-                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="16">
+                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="8">
                             </div>
                             <div>
                                 <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
