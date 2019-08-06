@@ -11,9 +11,9 @@ const connection = mysql.createConnection(dbConfig)
 const port = 8888
 
 app.use(express.static('public'))
-app.use(bodyParser.urlencoded({
-    extended: false
-}))
+app.use(bodyParser.json({limit: '1mb'}));
+app.use(bodyParser.urlencoded({limit: '1mb', extended: true}));
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/html/main.html')
@@ -41,7 +41,7 @@ app.get('/board', (req, res) => {
             }
             list += `
             <tr>
-                <td id="title"><a href="/board/${result[i]._id}">${sanitizeHtml(result[i].title)}</a></td>
+                <td id="title"><a href="/board/${result[i]._id}">${sanitizeHtml(result[i].title.replace(/\s/g, '&nbsp;'))}</a></td>
                 <td id="name">${sanitizeHtml(result[i].name)}</td>
                 <td id="date">${result[i].date}</td>
             </tr>
@@ -147,12 +147,23 @@ app.get('/board/:boardId', (req, res) => {
                         htmlName = selectResult[0].name
                         htmlDate = selectResult[0].date
                         htmlDescription = selectResult[0].description
+
+                        htmlTitle = htmlTitle.replace(/\s/g, '&nbsp;')
+                        htmlDescription = sanitizeHtml(htmlDescription)
+                        htmlDescription = htmlDescription.replace(/(?:\r\n|\r|\n)/g, '<br>')
+                        htmlDescription = htmlDescription.replace(/\s/g, '&nbsp;')
+
+
                         for (let i = 0; i < commentCount; i++) {
+                            let commentDescription = commentResult[i].description
+                            commentDescription = sanitizeHtml(commentDescription)
+                            commentDescription = commentDescription.replace(/(?:\r\n|\r|\n)/g, '<br>')
+                            commentDescription = commentDescription.replace(/\s/g, '&nbsp;')
                             comment += `
                             <ul>
                                 <li>${sanitizeHtml(commentResult[i].name)}</li>
                                 <li>${commentResult[i].date}</li>
-                                <li>${sanitizeHtml(commentResult[i].description)}</li>
+                                <li>${commentDescription}</li>
                                 <li>
                                     <a href="/board/${htmlId}/comment/${commentResult[i]._id}/update"><button>수정</button></a>
                                     <a href="/board/${htmlId}/comment/${commentResult[i]._id}/delete"><button>삭제</button></a>
@@ -179,20 +190,20 @@ app.get('/board/:boardId', (req, res) => {
                         <div>${htmlDate}</div>
                         <a href="/board/${htmlId}/update"><button>수정</button></a>
                         <a href="/board/${htmlId}/delete"><button>삭제</button></a>
-                        <div>${sanitizeHtml(htmlDescription)}</div>
+                        <div>${htmlDescription}</div>
                         <div>댓글 ${commentCount}</div>
                         <div>${comment}</div>
                         <div>
                         <div>*비밀번호는 나중에 댓글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
                         <form action="/board/${htmlId}/comment/create_process" method="POST">
                             <div>
-                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="32">
+                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="16">
                             </div>
                             <div>
                                 <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
                             </div>
                             <div>
-                                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535"></textarea>
+                                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="2000"></textarea>
                             </div>
                             <div>
                                 <input type="submit" value="게시">
@@ -261,10 +272,10 @@ app.get('/board/:boardId/update', (req, res) => {
                             <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
                         </div>
                         <div>
-                            <span>제목</span> <input type="text" name="title" id="title" minlength="4" maxlength="255" value="${sanitizeHtml(htmlTitle)}">
+                            <span>제목</span> <input type="text" name="title" id="title" minlength="4" maxlength="80" value="${sanitizeHtml(htmlTitle)}">
                         </div>
                         <div>
-                            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535">${sanitizeHtml(htmlDescription)}</textarea>
+                            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="10000">${sanitizeHtml(htmlDescription)}</textarea>
                         </div>
                         <div>
                             <input type="submit" value="수정">    
@@ -383,7 +394,6 @@ app.get('/board/:boardId/comment/:commentId/update', (req, res) => {
 
                     boardId = result[0].boardId
                     commentId = result[0]._id
-                    commentDescription = result[0].description
                     html = `
                     <!DOCTYPE html>
                     <html>
@@ -403,7 +413,7 @@ app.get('/board/:boardId/comment/:commentId/update', (req, res) => {
                             <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
                         </div>
                         <div>
-                            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="65535">${sanitizeHtml(commentDescription)}</textarea>
+                            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="2000">${sanitizeHtml(commentDescription)}</textarea>
                         </div>
                         <div>
                             <input type="submit" value="수정">    
@@ -499,7 +509,7 @@ app.get('/board/:boardId/comment/:commentId/delete_process', (req, res) => {
 
 app.post('/board/create_process', (req, res) => {
     if (req.body.name === '' || req.body.password === '' || req.body.title === '' || req.body.description === '') {
-        let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/create"</script>`
+        let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/create"</script>`
         res.send(error)
     } else {
         connection.query(`INSERT INTO board (name, password, title, description, date) VALUES (?, MD5(?), ?, ?, NOW())`, [req.body.name, req.body.password, req.body.title, req.body.description], (err, result) => {
@@ -514,13 +524,13 @@ app.post('/board/create_process', (req, res) => {
 app.post('/board/:boardId/update_process', (req, res) => {
     connection.query(`SELECT * FROM board WHERE _id = ?`, [req.body.id], (err, selectResult) => {
         if (req.body.password === '' || req.body.title === '' || req.body.description === '') {
-            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/update"</script>`
+            let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/${selectResult[0]._id}/update"</script>`
             res.send(error)
         } else if (MD5(req.body.password) != selectResult[0].password) {
             let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/update"</script>`
             res.send(error)
         } else {
-            connection.query(`UPDATE board SET title=?, description=?, date=NOW() WHERE _id=?`, [req.body.title, req.body.description, req.params.boardId], (err, result) => {
+        connection.query(`UPDATE board SET title=?, description=?, date=NOW() WHERE _id=?`, [req.body.title, req.body.description, req.params.boardId], (err, result) => {
                 if (err) {
                     throw err
                 }
@@ -533,7 +543,7 @@ app.post('/board/:boardId/update_process', (req, res) => {
 app.post('/board/:boardId/delete_process', (req, res) => {
     connection.query(`SELECT * FROM board WHERE _id = ?`, [req.body.id], (err, selectResult) => {
         if (req.body.password === '') {
-            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0]._id}/delete"</script>`
+            let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/${selectResult[0]._id}/delete"</script>`
             res.send(error)
         } else if (MD5(req.body.password) != selectResult[0].password) {
             let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0]._id}/delete"</script>`
@@ -543,6 +553,11 @@ app.post('/board/:boardId/delete_process', (req, res) => {
                 if (err) {
                     throw err
                 }
+                connection.query(`DELETE FROM comment WHERE boardId = ?`,[selectResult[0]._id], (err, result)=>{
+                    if(err){
+                        throw err
+                    }
+                })
                 res.redirect('/board')
             })
         }
@@ -551,7 +566,7 @@ app.post('/board/:boardId/delete_process', (req, res) => {
 
 app.post('/board/:boardId/comment/create_process', (req, res) => {
     if (req.body.name === '' || req.body.password === '' || req.body.description === '') {
-        let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${req.params.boardId}"</script>`
+        let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/${req.params.boardId}"</script>`
         res.send(error)
     } else {
         connection.query(`INSERT INTO comment (boardId, name, password, description, date) VALUES (?, ?, MD5(?), ?, NOW())`, [req.params.boardId, req.body.name, req.body.password, req.body.description], (err, result) => {
@@ -566,13 +581,13 @@ app.post('/board/:boardId/comment/create_process', (req, res) => {
 app.post('/board/:boardId/comment/:commentId/update_process', (req, res) => {
     connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.body.id], (err, selectResult) => {
         if (req.body.password === '' || req.body.description === '') {
-            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/update"</script>`
+            let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/update"</script>`
             res.send(error)
         } else if (MD5(req.body.password) != selectResult[0].password) {
             let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/update"</script>`
             res.send(error)
         } else {
-            connection.query(`UPDATE comment SET description=?, date=NOW() WHERE _id=?`, [selectResult[0].description, selectResult[0]._id], (err, result) => {
+            connection.query(`UPDATE comment SET description=?, date=NOW() WHERE _id=?`, [req.body.description, selectResult[0]._id], (err, result) => {
                 if (err) {
                     throw err
                 }
@@ -585,7 +600,7 @@ app.post('/board/:boardId/comment/:commentId/update_process', (req, res) => {
 app.post('/board/:boardId/comment/:commentId/delete_process', (req, res) => {
     connection.query(`SELECT * FROM comment WHERE _id = ?`, [req.body.id], (err, selectResult) => {
         if (req.body.password === '') {
-            let error = `<script>if(!alert("공백이 없도록 해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/delete"</script>`
+            let error = `<script>if(!alert("정보가 빠짐없이 입력되었는지 확인해주세요."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/delete"</script>`
             res.send(error)
         } else if (MD5(req.body.password) != selectResult[0].password) {
             let error = `<script>if(!alert("비밀번호를 잘못입력하셨습니다."))document.location="/board/${selectResult[0].boardId}/comment/${selectResult[0]._id}/delete"</script>`
