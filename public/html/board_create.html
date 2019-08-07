@@ -6,31 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/board_create.css">
     <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="../js/submitFunc.js"></script>
     <title>Writing</title>
 </head>
 
 <body>
-    <h1>글작성</h1>
-    <div>*비밀번호는 나중에 글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
-    <form action="/board/create_process" method="POST">
-        <div>
-            <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="8">
-        </div>
-        <div>
-            <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
-        </div>
-        <div>
-            <span>제목</span> <input type="text" name="title" id="title" minlength="4" maxlength="80">
-        </div>
-        <div>
-            <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="10000"></textarea>
-        </div>
-        <div>
-            <input type="submit" value="게시">
-        </div>
-    </form>
-    <div>
-        <a href="/board"><button>취소</button></a>
+    <ul class="navUl">    
+        <li class="navLi title"><a href="#"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;글작성</a></li>
+        <li class="navLi cancle hover"><a href="/board"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;&nbsp;취소</a></li>
+        <li class="navLi create hover"><a href="#" onclick="submitFunc()"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;글작성</a></li>
+    </ul>
+    <div class="container">
+        <div id="notice">*비밀번호는 나중에 글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
+        <form id="myForm" action="/board/create_process" method="POST">
+            <div class="nameDiv gap">
+                <div class="underline">
+                    <i class="fa fa-user" aria-hidden="true"></i>&nbsp;<input type="text" name="name" id="name" minlength="2" maxlength="8" placeholder="닉네임">
+                </div>
+            </div>
+            <div class="passwordDiv gap">
+                <div class="underline">
+                    <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;<input type="password" name="password" id="password" minlength="8" maxlength="16" placeholder="비밀번호">
+                </div>
+            </div>
+            <div class="titleDiv gap">
+                <input type="text" name="title" id="title" minlength="4" maxlength="80" placeholder="&nbsp;제목">
+            </div>
+            <div class="descriptionDiv gap">
+                <span class="descriptionSpan">내용</span> <textarea name="description" id="description" minlength="4" maxlength="10000"></textarea>
+            </div>
+        </form>
     </div>
 </body>
 

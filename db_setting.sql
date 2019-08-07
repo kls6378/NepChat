@@ -8,6 +8,7 @@ CREATE TABLE board(
     password VARCHAR(32) NOT NULL,
     title TINYTEXT NOT NULL,
     description TEXT NOT NULL,
+    commentCount INT DEFAULT 0 NOT NULL,
     date DATE NOT NULL
 );
 

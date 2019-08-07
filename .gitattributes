@@ -1,1 +1,1 @@
-/public/game/* filter=lfs diff=lfs merge=lfs -text
+/public/cdn/* filter=lfs diff=lfs merge=lfs -text

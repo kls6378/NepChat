@@ -18,7 +18,7 @@ body, html{
     float: left;
 }
 
-.create, .cancle{
+.delete, .cancle{
     float: right;
 }
 
@@ -41,7 +41,7 @@ body, html{
 
 .container{
     width: 600px;
-    height: 600px;
+    height: 150px;
     border: 1px solid black;
     background-color: white;
     position: absolute;
@@ -57,72 +57,30 @@ body, html{
     font-weight: bold;
 }
 
-.nameDiv, .passwordDiv{
+.passwordDiv{
     width: 90%;
     box-sizing: border-box;
     margin: 0 auto;
-}
-
-.nameDiv{
-    margin-top: 40px;
 }
 
 .underline{
     border-bottom: 1px solid black;
     width: 220px;
-    margin: 15px;
+    margin: 15px auto;
     font-size: 20px;
 }
 
-.fa-user, .fa-lock{
+.fa-lock{
     font-size: 20px;
 }
 
-#name, #password{
+.passwordDiv{
+    margin-top: 40px;
+}
+
+#password{
     border: none;
     outline: none;
     width: 80%;
     font-size: 18px;
-}
-
-.titleDiv{
-    text-align: center;
-    margin-top: 40px;
-    margin-bottom: 20px;
-}
-
-#title{
-    width: 90%;
-    height: 40px;
-    box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 18px;
-    outline: none;
-}
-
-.descriptionSpan{
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.descriptionDiv{
-    width: 90%;
-    height: 300px;
-    margin: 0 auto;
-}
-
-#description{
-    display: block;
-    border-radius: 10px;
-    box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid black;
-    margin-top: 10px;
-    width: 100%;
-    height: 100%;
-    font-size: 18px;
-    resize: none;
-    outline: none;
 }
