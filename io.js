@@ -2,8 +2,13 @@ const express = require('express')
 const app = express()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
+const compression = require('compression')
+const helmet = require('helmet')
 
 const port = 9999
+
+app.use(helmet())
+app.use(compression())
 
 io.on('connection',(socket)=>{
     console.log(`${socket.id} connected`)

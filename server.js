@@ -4,12 +4,16 @@ const mysql = require('mysql')
 const bodyParser = require('body-parser')
 const sanitizeHtml = require('sanitize-html')
 const MD5 = require('md5')
+const compression = require('compression')
+const helmet = require('helmet')
 
 const dbConfig = require('./config/db_config.js')
 const connection = mysql.createConnection(dbConfig)
 
 const port = 8888
 
+app.use(helmet())
+app.use(compression())
 app.use(express.static('public'))
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({limit: '1mb', extended: true}));
@@ -71,6 +75,8 @@ app.get('/board', (req, res) => {
             <link rel="stylesheet" href="./css/board.css">
             <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+            <link rel="shortcut icon" href="./icon/favicon.ico">
+            <link rel="icon" href="favicon.ico">
             <script src="http://localhost:9999/socket.io/socket.io.js"></script>
             <title>Board</title>
         </head>
@@ -293,6 +299,8 @@ app.get('/board/:boardId', (req, res) => {
                         <link rel="stylesheet" href="../css/board_read.css">
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                        <link rel="shortcut icon" href="../icon/favicon.ico">
+                        <link rel="icon" href="favicon.ico">
                         <title>${sanitizeHtml(htmlTitle)}</title>
                         </head>
                         
@@ -405,6 +413,8 @@ app.get('/board/:boardId/update', (req, res) => {
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                         <link rel="stylesheet" href="../../css/update.css">
+                        <link rel="shortcut icon" href="../../icon/favicon.ico">
+                        <link rel="icon" href="favicon.ico">
                         <script src="../../js/submitFunc.js"></script>
                         <title>Update</title>
                     </head>
@@ -479,6 +489,8 @@ app.get('/board/:boardId/delete', (req, res) => {
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                         <link rel="stylesheet" href="../../css/delete.css">
+                        <link rel="shortcut icon" href="../icon/favicon.ico">
+                        <link rel="icon" href="favicon.ico">
                         <script src="../../js/submitFunc.js"></script>
                         <title>Delete</title>
                     </head>
@@ -555,6 +567,8 @@ app.get('/board/:boardId/comment/:commentId/update', (req, res) => {
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                         <link rel="stylesheet" href="../../../../css/update.css">
+                        <link rel="shortcut icon" href="../../../../icon/favicon.ico">
+                        <link rel="icon" href="favicon.ico">
                         <script src="../../../../js/submitFunc.js"></script>
                         <title>Update</title>
                     </head>
@@ -624,6 +638,8 @@ app.get('/board/:boardId/comment/:commentId/delete', (req, res) => {
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
                         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                         <link rel="stylesheet" href="../../../../css/delete.css">
+                        <link rel="shortcut icon" href="../../../../icon/favicon.ico">
+                        <link rel="icon" href="favicon.ico">
                         <script src="../../../../js/submitFunc.js"></script>
                         <title>Delete</title>
                     </head>
