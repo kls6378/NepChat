@@ -1,0 +1,65 @@
+body, html{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+#bg{
+    background: url(../image/main0.jpg);
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#black{
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.container{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 500px;
+    height: 530px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8)
+}
+
+
+#downloadBtn{
+    display: inline-block;
+    text-transform: uppercase;
+    text-decoration: none;
+    margin: 70px;
+    padding: 30px 50px;
+    border-radius: 20px;
+    background-color: #010059;
+    color: #fcf594;
+    font-size: 24px;
+    transition: 0.5s;
+}
+
+#downloadBtn:hover{
+    margin: 60px;
+    padding: 40px 60px;
+    background-color: #52437b;
+    color: #ff7a8a;
+}
+
+#downloadBtn span{
+    text-transform: none;
+    font-size: 12px;
+}
+
+.explain{
+    text-align: justify;
+    width: 95%;
+    margin: 0 auto;
+    line-height: 1.5em;
+}

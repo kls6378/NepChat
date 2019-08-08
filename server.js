@@ -19,8 +19,8 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/html/main.html')
 })
 
-app.get('/game', (req, res) => {
-    res.sendFile(__dirname + '/public/game/NeptuneChat.html')
+app.get('/download', (req, res) => {
+    res.sendFile(__dirname + '/public/html/download.html')
 })
 
 app.get('/board', (req, res) => {
@@ -79,14 +79,14 @@ app.get('/board', (req, res) => {
         <ul class="navUl">
             <li class="navLi title"><a href="#"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;자유 게시판</a></li>        
             <li class="navLi main hover"><a href="/"><i class="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;메인</a></li>        
-            <li class="navLi main hover"><a href="/cdn/Game.zip"><i class="fa fa-gamepad" aria-hidden="true"></i>&nbsp;&nbsp;다운로드</a></li>        
+            <li class="navLi main hover"><a href="/download"><i class="fa fa-gamepad" aria-hidden="true"></i>&nbsp;&nbsp;다운로드</a></li>        
             <li class="navLi create hover"><a href="/board/create"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;글작성</a></li>
         </ul>
         ${list}
         <div id="userSet">
             <div id="inputContainer">
                 <h3>채팅방</h3>
-                <input type="text" id="userNameInput" onkeydown="checkEnter('enterChat')" minlength=2 maxlength=8>
+                <input type="text" id="userNameInput" onkeydown="checkEnter('enterChat')" minlength=2 maxlength=8 placeholder="닉네임을 입력해주세요...">
                 <input type="submit" id="submit" value="입장" onclick="enterChat()">
             </div>
         </div>
@@ -107,17 +107,17 @@ app.get('/board', (req, res) => {
                     el.classList.remove('fixed')
                 }
             })
-            let socket = io('http://localhost:9999')
-            let userNameInput = document.getElementById('userNameInput')        
-            let userSet = document.getElementById('userSet')        
-            let chat = document.getElementById('chat')        
-            let msgOutputDiv = document.getElementById('msgOutputDiv')
-            let msgInput = document.getElementById('msgInput')        
+            const socket = io('http://localhost:9999')
+            const userNameInput = document.getElementById('userNameInput')        
+            const userSet = document.getElementById('userSet')        
+            const chat = document.getElementById('chat')        
+            const msgOutputDiv = document.getElementById('msgOutputDiv')
+            const msgInput = document.getElementById('msgInput')        
             socket.on('connect', () => {
                 console.log('서버 접속')
             })
             socket.on('msg', (msg) => {
-                let message = document.createElement('div')
+                const message = document.createElement('div')
                 if(msg["Sender"] == undefined){
                     message.innerHTML = 'Guest : '+msg["Message"]
                 }else{
@@ -128,7 +128,7 @@ app.get('/board', (req, res) => {
                 msgOutputDiv.scrollTop = msgOutputDiv.scrollHeight
             })
             socket.on('msgM', (msg) => {
-                let message = document.createElement('div')
+                const message = document.createElement('div')
                 if(msg["Sender"] == undefined){
                     message.innerHTML = 'Guest : '+msg["Message"]
                 }else{
@@ -140,7 +140,7 @@ app.get('/board', (req, res) => {
                 msgOutputDiv.scrollTop = msgOutputDiv.scrollHeight
             })
             socket.on('chatEnter', (user)=>{
-                let message = document.createElement('div')
+                const message = document.createElement('div')
                 if(user == undefined){
                     message.innerHTML = 'Guest님이 입장하셨습니다.'
                 }else{
@@ -153,7 +153,7 @@ app.get('/board', (req, res) => {
                 msgOutputDiv.scrollTop = msgOutputDiv.scrollHeight
             })
             socket.on('chatExit', (user)=>{
-                let message = document.createElement('div')
+                const message = document.createElement('div')
                 if(user == undefined){
                     message.innerHTML = 'Guest님이 퇴장하셨습니다.'
                 }else{
@@ -269,14 +269,17 @@ app.get('/board/:boardId', (req, res) => {
                             commentDescription = commentDescription.replace(/(?:\r\n|\r|\n)/g, '<br>')
                             commentDescription = commentDescription.replace(/\s/g, '&nbsp;')
                             comment += `
-                            <ul>
-                                <li>${sanitizeHtml(commentResult[i].name)}</li>
-                                <li>${commentResult[i].date}</li>
-                                <li>${commentDescription}</li>
-                                <li>
-                                    <a href="/board/${htmlId}/comment/${commentResult[i]._id}/update"><button>수정</button></a>
-                                    <a href="/board/${htmlId}/comment/${commentResult[i]._id}/delete"><button>삭제</button></a>
-                                </li>
+                            <ul class="commentUl">
+                                <div class="commentName_date_btn">
+                                    <li class="comment commentName">${sanitizeHtml(commentResult[i].name)}</li>
+                                    <li class="comment commentDate">${commentResult[i].date}</li>
+                                    <li class="comment btn">
+                                        <a href="/board/${htmlId}/comment/${commentResult[i]._id}/update"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                        &nbsp;&nbsp;
+                                        <a href="/board/${htmlId}/comment/${commentResult[i]._id}/delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                    </li>
+                                </div>
+                                <li class="comment commentDescription">${commentDescription}</li>
                             </ul>
                             `
                         }
@@ -289,36 +292,67 @@ app.get('/board/:boardId', (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <link rel="stylesheet" href="../css/board_read.css">
                         <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                         <title>${sanitizeHtml(htmlTitle)}</title>
                         </head>
                         
                         <body>
-                        <a href="/board"><button>목록</button></a>
-                        <h1>${sanitizeHtml(htmlTitle)}</h1>
-                        <div>${sanitizeHtml(htmlName)}</div>
-                        <div>${htmlDate}</div>
-                        <a href="/board/${htmlId}/update"><button>수정</button></a>
-                        <a href="/board/${htmlId}/delete"><button>삭제</button></a>
-                        <div>${htmlDescription}</div>
-                        <div>댓글 ${commentCount}</div>
-                        <div>${comment}</div>
-                        <div>
-                        <div>*비밀번호는 나중에 댓글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
-                        <form action="/board/${htmlId}/comment/create_process" method="POST">
-                            <div>
-                                <span>닉네임</span> <input type="text" name="name" id="name" minlength="2" maxlength="8">
+                        <ul class="navUl">
+                            <li class="navLi title"><a href="#"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;자유 게시판</a></li>        
+                            <li class="navLi list hover"><a href="/board"><i class="fa fa-list-ul" aria-hidden="true"></i>&nbsp;&nbsp;목록</a></li>
+                            <li class="navLi delete hover"><a href="/board/${htmlId}/delete"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;삭제</a></li>
+                            <li class="navLi update hover"><a href="/board/${htmlId}/update"><i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;&nbsp;수정</a></li>
+                        </ul>
+
+                        <div class="board">
+                            <div class="content">
+                                <div id="htmlTitle">${sanitizeHtml(htmlTitle)}</div>  
+                                <div class="name_date">  
+                                    <div id="htmlName">${sanitizeHtml(htmlName)}&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+                                    <div id="htmlDate">${htmlDate}</div>
+                                </div>
+                                <div id="htmlDescription">${htmlDescription}</div>
+                                <div>
+                                <div class="commentContainer">
+                                    <div id="commentCount">&nbsp;&nbsp;<i class="fa fa-commenting-o" aria-hidden="true"></i>&nbsp;&nbsp;댓글&nbsp;${commentCount}</div>
+                                    <div id="htmlComment">${comment}</div>
+                                </div>
+                                <div class="inputContainer">
+                                <form action="/board/${htmlId}/comment/create_process" method="POST">
+                                    <div class="descriptionDiv gap">
+                                        <span class="descriptionSpan">댓글 달기</span> <textarea name="description" id="description" minlength="4" maxlength="2000" placeholder="댓글..."></textarea>
+                                    </div>
+                                    <div id="notice">*비밀번호는 나중에 글을 수정 및 삭제 할때 사용될 정보입니다.*</div>
+                                    <div class="name_password_submit">
+                                        <div class="nameDiv gap">
+                                            <div class="underline">
+                                                <i class="fa fa-user" aria-hidden="true"></i>&nbsp;<input type="text" name="name" id="name" minlength="2" maxlength="8" placeholder="닉네임">
+                                            </div>
+                                        </div>
+                                        <div class="passwordDiv gap">
+                                            <div class="underline">
+                                                <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;<input type="password" name="password" id="password" minlength="8" maxlength="16" placeholder="비밀번호">
+                                            </div>
+                                        </div>
+                                        <div class="submitDiv">
+                                            <input type="submit" value="작성">
+                                        </div>
+                                    </div>
+                                </form>
+                                </div>
                             </div>
-                            <div>
-                                <span>비밀번호</span> <input type="password" name="password" id="password" minlength="8" maxlength="16">
-                            </div>
-                            <div>
-                                <span>내용</span> <textarea name="description" id="description" cols="30" rows="10" minlength="4" maxlength="2000"></textarea>
-                            </div>
-                            <div>
-                                <input type="submit" value="게시">
-                            </div>
-                        </form>
                         </div>
+                        <script>
+                            window.addEventListener('scroll', function() {
+                                let el = document.querySelector('.navUl')
+                                
+                                if(window.scrollY >= 60){
+                                    el.classList.add('fixed')
+                                }else {
+                                    el.classList.remove('fixed')
+                                }
+                            })
+                        </script>
                         </body>
                         
                         </html>
@@ -540,7 +574,7 @@ app.get('/board/:boardId/comment/:commentId/update', (req, res) => {
                                 </div>
                             </div>
                             <div class="descriptionDiv gap">
-                                <span class="descriptionSpan">내용</span> <textarea name="description" id="description" minlength="4" maxlength="10000">${sanitizeHtml(commentDescription)}</textarea>
+                                <span class="descriptionSpan">내용</span> <textarea name="description" id="description" minlength="4" maxlength="2000">${sanitizeHtml(commentDescription)}</textarea>
                             </div>
                         </form>
                     </div>

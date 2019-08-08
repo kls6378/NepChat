@@ -46,7 +46,7 @@ body, html{
     border: 0.5px solid black;
     border-radius: 10px;
     width: 560px;
-    max-height: 500px;
+    max-height: 550px;
     box-shadow: 2.5px 2.5px 2px 2px #ccc;
 }
 
@@ -87,13 +87,16 @@ body, html{
 }
 
 .commentCount{
-    margin-top: 10px;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 18px;
 }
 
 /*채팅*/
 
 #userSet{
     position: fixed;
+    width: 300px;
     top: 50%;
     right: 10px;
     display: block;
@@ -110,15 +113,21 @@ h3{
 #userNameInput{
     outline: none;
     box-sizing: border-box;
+    width: 250px;
     height: 25px;
 }
 
 #submit{
     border: none;
-    background-color: #553c8b;
-    color: white;
+    background-color: #ccc1ff;
+    color: black;
     width: 40px;
     height: 25px;
+    cursor: pointer;
+}
+
+#submit:hover{
+    background-color: #aa98fc;
 }
 
 #chat{
