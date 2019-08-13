@@ -124,22 +124,14 @@ app.get('/board', (req, res) => {
             })
             socket.on('msg', (msg) => {
                 const message = document.createElement('div')
-                if(msg["Sender"] == undefined){
-                    message.innerHTML = 'Guest : '+msg["Message"]
-                }else{
-                    message.innerHTML = msg["Sender"]+' : '+msg["Message"]
-                }
+                message.innerHTML = msg["Sender"]+' : '+msg["Message"]
                 message.style.padding = '5px'
                 msgOutputDiv.appendChild(message)
                 msgOutputDiv.scrollTop = msgOutputDiv.scrollHeight
             })
             socket.on('msgM', (msg) => {
                 const message = document.createElement('div')
-                if(msg["Sender"] == undefined){
-                    message.innerHTML = 'Guest : '+msg["Message"]
-                }else{
-                    message.innerHTML = msg["Sender"]+' : '+msg["Message"]
-                }
+                message.innerHTML = msg["Sender"]+' : '+msg["Message"]
                 message.style.color = 'blue'
                 message.style.padding = '5px'
                 msgOutputDiv.appendChild(message)

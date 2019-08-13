@@ -14,7 +14,6 @@ app.use(compression())
 io.on('connection',(socket)=>{
     console.log(`${socket.id} connected`)
     socket.on('disconnect', ()=>{
-        io.emit('chatExit',socket.name)
         console.log(`${socket.id} disconnected`)
     })
     socket.on('userName', (val)=>{
@@ -23,11 +22,7 @@ io.on('connection',(socket)=>{
         }
         val = val.trim()
         val = sanitizeHtml(val)
-        if(val == ''){
-            val = 'Guest'
-        }
         socket.name = val
-        io.emit('chatEnter',val)
     })
     socket.on('msg',(val)=>{
         let msg
@@ -36,12 +31,18 @@ io.on('connection',(socket)=>{
 
         try {
             msg = JSON.parse(val)
+            msg['Message'] = msg['Message'].trim()
+            msg['Message'] = sanitizeHtml(msg['Message'])
         } catch (error) {
-            console.log(error)
-            return false
+            if(error instanceof SyntaxError){
+                val = val.trim()
+                val = sanitizeHtml(val)
+                msg = {Sender: 'Guest', Message: val}
+            }else{
+                console.log(error)
+                return false
+            }
         }
-        msg['Message'] = msg['Message'].trim()
-        msg['Message'] = sanitizeHtml(msg['Message'])
         console.log('\nJSON parse result : ')
         console.log(msg)
         if(msg['Sender'] == 'None' || msg['Sender'] == ''){
@@ -50,6 +51,9 @@ io.on('connection',(socket)=>{
             }else{
                 msg['Sender'] = 'Guest'
             }
+        }
+        if(msg == undefined){
+            msg = {Sender: 'Guest', Message: val}
         }
         if(msg['Message'] == ''){
             return false
